@@ -8,11 +8,11 @@
 	</array>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.algoritmico.ios.demo.BasicTunnel</string>
+		<string>group.com.f-secure.freedome.openvpntest</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)group.com.algoritmico.ios.demo.BasicTunnel</string>
+		<string>$(AppIdentifierPrefix)com.f-secure.freedome.openvpntest</string>
 	</array>
 </dict>
 </plist>

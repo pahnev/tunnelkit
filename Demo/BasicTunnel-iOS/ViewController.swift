@@ -76,39 +76,41 @@ YDQ8z9v+DMO6iwyIDRiU
 """)
 
 extension ViewController {
-    private static let appGroup = "group.com.algoritmico.ios.demo.BasicTunnel"
+    private static let appGroup = "group.com.f-secure.freedome.openvpntest"
     
-    private static let tunnelIdentifier = "com.algoritmico.ios.demo.BasicTunnel.BasicTunnelExtension"
+    private static let tunnelIdentifier = "com.f-secure.freedome.openvpntest.VPNTunnel"
     
-    private func makeProtocol() -> NETunnelProviderProtocol {
-        let server = textServer.text!
-        let domain = textDomain.text!
-        
-        let hostname = ((domain == "") ? server : [server, domain].joined(separator: "."))
-        let port = UInt16(textPort.text!)!
-        let credentials = OpenVPN.Credentials(textUsername.text!, textPassword.text!)
-        
+    private func makeProtocol() -> NETunnelProviderProtocol  {
+
         var sessionBuilder = OpenVPN.ConfigurationBuilder()
         sessionBuilder.ca = ca
-        sessionBuilder.cipher = .aes128cbc
+        sessionBuilder.clientCertificate = clientCA
+        sessionBuilder.clientKey = clientKey
+        sessionBuilder.cipher = .aes128gcm
+        sessionBuilder.keepAliveInterval = 27
         sessionBuilder.digest = .sha1
         sessionBuilder.compressionFraming = .compLZO
-        sessionBuilder.renegotiatesAfter = nil
-        sessionBuilder.hostname = hostname
-        let socketType: SocketType = switchTCP.isOn ? .tcp : .udp
-        sessionBuilder.endpointProtocols = [EndpointProtocol(socketType, port)]
-        sessionBuilder.usesPIAPatches = true
+        sessionBuilder.compressionAlgorithm = .none
+        sessionBuilder.renegotiatesAfter = 2
+        sessionBuilder.endpointProtocols = [EndpointProtocol(.tcp, 443)]
+//        sessionBuilder.usesPIAPatches = true
         var builder = OpenVPNTunnelProvider.ConfigurationBuilder(sessionConfiguration: sessionBuilder.build())
-        builder.mtu = 1350
+        builder.mtu = 1500
         builder.shouldDebug = true
         builder.masksPrivateData = false
         
         let configuration = builder.build()
-        return try! configuration.generatedTunnelProtocol(
-            withBundleIdentifier: ViewController.tunnelIdentifier,
-            appGroup: ViewController.appGroup,
-            credentials: credentials
-        )
+        do {
+
+            let c = try configuration.generatedTunnelProtocol(
+                withBundleIdentifier: ViewController.tunnelIdentifier,
+                appGroup: ViewController.appGroup,
+                credentials: nil)
+            return c
+        } catch {
+            print(error)
+            fatalError()
+        }
     }
 }
 
@@ -183,9 +185,9 @@ class ViewController: UIViewController, URLSessionDataDelegate {
     
     @IBAction func tcpClicked(_ sender: Any) {
         if switchTCP.isOn {
-            textPort.text = "502"
+            textPort.text = "443"
         } else {
-            textPort.text = "1198"
+            textPort.text = "2744"
         }
     }
     
